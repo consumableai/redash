@@ -15,6 +15,7 @@ import { ExecutionStatus } from "@/services/query-result";
 import routes from "@/services/routes";
 import notification from "@/services/notification";
 import * as queryFormat from "@/lib/queryFormat";
+import TranslateQuery from "consumableai";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
@@ -60,6 +61,10 @@ function QuerySource(props) {
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
   const { QueryEditor, SchemaBrowser } = getEditorComponents(dataSource && dataSource.type);
   const isMobile = !useMedia({ minWidth: 768 });
+  const [isTranslating, setIsTranslating] = useState(false);
+  const client = new TranslateQuery({
+    apiKey: "<secret_key_of_the_user>",
+  });
 
   useUnsavedChangesAlert(isDirty);
 
@@ -192,6 +197,17 @@ function QuerySource(props) {
   const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
   const deleteVisualization = useDeleteVisualization(query, setQuery);
 
+  const updateTranslate = async () => {
+    setIsTranslating(true);
+    const responseTranslate = await client.translate(query.query);
+    const formattedQueryText = queryFormat.formatQuery(
+      `--${query.query} \n ${responseTranslate?.text}` || "",
+      querySyntax
+    );
+    setQuery(extend(query.clone(), { query: formattedQueryText }));
+    setIsTranslating(false);
+  };
+
   return (
     <div className={cx("query-page-wrapper", { "query-fixed-layout": !isMobile })}>
       <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
@@ -296,6 +312,15 @@ function QuerySource(props) {
                           loading: isQuerySaving,
                         }
                       }
+                      translateButtonProps={{
+                        text: (
+                          <React.Fragment>
+                            <span className="hidden-xs">Translate</span>
+                          </React.Fragment>
+                        ),
+                        onClick: updateTranslate,
+                        loading: isTranslating,
+                      }}
                       executeButtonProps={{
                         disabled: !queryFlags.canExecute || isQueryExecuting || areParametersDirty,
                         shortcut: "mod+enter, alt+enter, ctrl+enter, shift+enter",

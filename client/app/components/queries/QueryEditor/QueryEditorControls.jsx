@@ -37,6 +37,7 @@ export default function EditorControl({
   addParameterButtonProps,
   formatButtonProps,
   saveButtonProps,
+  translateButtonProps,
   executeButtonProps,
   autocompleteToggleProps,
   autoLimitCheckboxProps,
@@ -44,7 +45,7 @@ export default function EditorControl({
 }) {
   useEffect(() => {
     const buttons = filter(
-      [addParameterButtonProps, formatButtonProps, saveButtonProps, executeButtonProps],
+      [addParameterButtonProps, formatButtonProps, saveButtonProps, executeButtonProps, translateButtonProps],
       b => b.shortcut && isFunction(b.onClick)
     );
     if (buttons.length > 0) {
@@ -54,7 +55,7 @@ export default function EditorControl({
         KeyboardShortcuts.unbind(shortcuts);
       };
     }
-  }, [addParameterButtonProps, formatButtonProps, saveButtonProps, executeButtonProps]);
+  }, [addParameterButtonProps, formatButtonProps, saveButtonProps, executeButtonProps, translateButtonProps]);
 
   return (
     <div className="query-editor-controls">
@@ -100,6 +101,17 @@ export default function EditorControl({
             </Select.Option>
           ))}
         </Select>
+      )}
+      {translateButtonProps !== false && (
+        <ButtonTooltip title={translateButtonProps.title} shortcut={translateButtonProps.shortcut}>
+          <Button
+            className="query-editor-controls-button m-l-5"
+            onClick={translateButtonProps.onClick}
+            loading={translateButtonProps.loading}
+            data-test="TranslateButton">
+            {translateButtonProps.text}
+          </Button>
+        </ButtonTooltip>
       )}
       {saveButtonProps !== false && (
         <ButtonTooltip title={saveButtonProps.title} shortcut={saveButtonProps.shortcut}>
