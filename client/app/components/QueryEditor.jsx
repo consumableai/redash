@@ -230,14 +230,14 @@ class QueryEditor extends React.Component {
   translateQuery = () => {
     const self = this;
     this.setState({ isTranslating: true });
-    const formatQueryA = (arg) => {
+    const formatQueryFormatter = (arg) => {
       Query.format(this.props.dataSource.syntax || 'sql', arg)
         .then(self.updateQuery)
         .catch(error => notification.error(error));
     };
     const { queryText } = this.state;
     this.client.translate(queryText).then((responseTranslate) => {
-      formatQueryA(
+      formatQueryFormatter(
         '--' +
           queryText +
           '\n' +
