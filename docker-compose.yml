@@ -5,6 +5,7 @@ services:
   server:
     build: .
     command: dev_server
+    platform: linux/amd64
     depends_on:
       - postgres
       - redis
@@ -22,6 +23,7 @@ services:
   worker:
     build: .
     command: dev_worker
+    platform: linux/amd64
     volumes:
       - type: bind
         source: .

@@ -7,6 +7,7 @@ RUN npm install
 COPY client /frontend/client
 COPY webpack.config.js /frontend/
 RUN npm run build
+COPY /app/client/dist /frontend/client/dist 
 
 FROM redash/base:debian
 
@@ -15,12 +16,15 @@ ARG skip_ds_deps
 
 # We first copy only the requirements file, to avoid rebuilding on every file
 # change.
+RUN pip install --upgrade pip
+RUN pip install --upgrade setuptools pip
+
 COPY requirements.txt requirements_bundles.txt requirements_dev.txt requirements_all_ds.txt ./
 RUN pip install -r requirements.txt -r requirements_dev.txt
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
 
 COPY . /app
-COPY --from=frontend-builder /frontend/client/dist /app/client/dist
+# COPY --from=frontend-builder /frontend/client/dist /app/client/dist
 RUN chown -R redash /app
 USER redash
 
